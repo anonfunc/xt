@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# Shell dtrx alike.
+# Starting smallish.
+
+# Idea from shocco.
+show_help () {
+    grep '^#/' <"$0" | cut -c4-
+    exit 0
+}
+
+#/ Usage: xt <file>
