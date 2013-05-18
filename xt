@@ -1,4 +1,5 @@
 #!/bin/bash
+unset CDPATH
 
 # Shell dtrx alike.
 # Starting smallish.
@@ -10,3 +11,53 @@ show_help () {
 }
 
 #/ Usage: xt <file>
+
+# Iterated extraction?
+
+FROM=$1
+while true
+do
+    if [[ ! -f $FROM ]]
+    then
+        echo "$FROM does not exist."
+        exit 1
+    fi
+
+    EXT=${FROM##*.}
+    REM=${FROM%.$EXT}
+    echo "Extension looks like $EXT, stripped is $REM"
+    case $EXT in
+        zip)
+            unzip $FROM -d $REM
+            ;;
+        rar)
+            unrar x -ad $FROM 
+            ;;
+        gz)
+            gunzip $FROM
+            ;;
+        bz2)
+            bunzip2 $FROM
+            ;;
+        tar)
+            FILE=`pwd`/$FROM
+            DIR=`basename $REM`
+            mkdir -p $DIR
+            ( cd $DIR && tar xvf $FILE )
+            cd $DIR
+            FILES=( $( ls ) )
+            if [[ ${#FILES[*]} == 1 ]]
+            then
+                cd $FILES
+                mv `ls -A` ../
+                cd ..
+                rmdir $FILES
+            fi
+            ;;
+        *)
+            echo "Nothing left to extract."
+            exit
+            ;;
+    esac
+    FROM=$REM
+done
